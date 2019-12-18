@@ -20,13 +20,14 @@ class VideoRepositoryImpl : VideoRepository {
             .unsafeCast<Video>()
 
     override suspend fun fetchVideos(numberOfVideos: Int): List<Video> = coroutineScope {
-        (1..numberOfVideos).map { id ->
-            async { fetchVideo(id) }
-        }.awaitAll()
+        (1..if (numberOfVideos > maxNumberOfVideos) maxNumberOfVideos else numberOfVideos)
+                .map { id -> async { fetchVideo(id) } }
+                .awaitAll()
     }
 
     companion object {
         private const val url = "https://my-json-server.typicode.com/kotlin-hands-on/kotlinconf-json/videos/"
+        private const val maxNumberOfVideos = 25
     }
 
 }

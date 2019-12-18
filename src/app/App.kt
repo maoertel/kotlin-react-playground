@@ -4,7 +4,6 @@ import app.components.VideoListComponent
 import app.components.VideoListProps
 import app.components.videoPlayer
 import data.VideoRepository
-import data.VideoRepositoryImpl
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import model.Video
@@ -13,15 +12,17 @@ import react.dom.div
 import react.dom.h1
 import react.dom.h3
 
+interface AppProps : RProps {
+    var videoRepository: VideoRepository
+}
+
 interface AppState : RState {
     var currentVideo: Video?
     var unwatchedVideos: List<Video>
     var watchedVideos: List<Video>
 }
 
-class App : RComponent<RProps, AppState>() {
-
-    private val videoRepository: VideoRepository = VideoRepositoryImpl()
+class App : RComponent<AppProps, AppState>() {
 
     override fun AppState.init() {
         unwatchedVideos = listOf()
@@ -29,7 +30,7 @@ class App : RComponent<RProps, AppState>() {
 
         val mainScope = MainScope()
         mainScope.launch {
-            val videos = videoRepository.fetchVideos()
+            val videos = props.videoRepository.fetchVideos(numberOfVideos = 25)
             setState { unwatchedVideos = videos }
         }
     }
